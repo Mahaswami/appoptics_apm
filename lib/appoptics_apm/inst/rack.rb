@@ -132,7 +132,7 @@ if AppOpticsAPM.loaded
           status = status.to_i
           error = status.between?(500,599) ? 1 : 0
           duration =(1000 * 1000 * (Time.now - start)).round(0)
-          AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, duration, status, req.request_method, error)
+          # AppOpticsAPM::Span.createHttpSpan(transaction_name(env), req_url, duration, status, req.request_method, error)
         end
       end
 

@@ -1,4 +1,19 @@
-# Welcome to the AppOpticsAPM Ruby Gem````
+# Welcome to the AppOpticsAPM Gem
+
+# Jruby Config
+```JRuby    
+    export APPOPTICS_PATH=Your-jar-file-location
+```
+
+```JRuby  
+    export JAVA_OPTS="$JAVA_OPTS -javaagent:$APPOPTICS_PATH/appoptics-agent.jar=hostname_alias=Your-Host-Name"    
+```
+
+```JRuby
+    export APPOPTICS_SERVICE_KEY=Your-Key
+```
+
+# Ruby config
 
 The appoptics_apm gem provides [AppOptics APM](https://www.appoptics.com/) performance instrumentation for Ruby.
 
