@@ -1,0 +1,95 @@
+version: "2"
+
+#########################################################################################################
+#
+# to start the services:
+# > docker-compose up -d
+# ('ruby_appoptics' and 'wait' will exit)
+#
+# to run some ruby tests:
+# > docker-compose run --service-ports ruby_appoptics /code/ruby-appoptics_apm/ruby_setup.sh 2.3.1 gemfiles/rails42.gemfile
+#
+########################################################################################################
+
+services:
+  ruby_appoptics_apm:
+     container_name: ruby_appoptics_apm
+     image: ruby_appoptics_apm
+     build:
+        context: .
+        dockerfile: ./Dockerfile_test
+     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
+     mem_limit: 1G
+     volumes:
+       - .:/code/ruby-appoptics_apm
+     depends_on:
+       - wait
+     links:
+       - wait
+     environment:
+       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
+       - DOCKER_MYSQL_PASS=admin
+       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+       - MYSQL_ROOT_PASSWORD=admin
+       - MYSQL_HOST=mysql
+       - APPOPTICS_MONGO_SERVER=mongo
+
+  ruby_appoptics_apm_alpine:
+     container_name: ruby_appoptics_apm_alpine
+     image: ruby_alpine
+     build:
+        context: .
+        dockerfile: ./Dockerfile_alpine
+     cpu_quota: 100000 # 1 cpu, assumes cpu_period of 1 second
+     mem_limit: 1G
+     volumes:
+       - .:/code/ruby-appoptics_apm
+     depends_on:
+       - wait
+     links:
+       - wait
+     environment:
+       - APPOPTICS_RABBITMQ_SERVER=rabbitmq
+       - DOCKER_MYSQL_PASS=admin
+       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+       - MYSQL_ROOT_PASSWORD=admin
+       - MYSQL_HOST=mysql
+       - APPOPTICS_MONGO_SERVER=mongo
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "8080:15672"
+      - "5672:5672"
+      - "5671:5671"
+
+  mysql:
+    container_name: mysql
+    image: mysql:5.7.13
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=admin
+    ports:
+      - "3306:3306"
+
+  mongo:
+    container_name: mongo
+    image: mongo:3.4
+    ports:
+      - "27017:27017"
+
+  wait:
+    container_name: wait
+    image: waisbrot/wait
+    depends_on:
+      - rabbitmq
+      - mysql
+      - mongo
+    links:
+      - rabbitmq
+      - mysql
+      - mongo
+    environment:
+      - TARGETS=mysql:3306;rabbitmq:5672;mongo:27017
+
