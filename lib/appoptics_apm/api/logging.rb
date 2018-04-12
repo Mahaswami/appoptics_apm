@@ -137,10 +137,10 @@ module AppOpticsAPM
             # continue valid incoming xtrace
             # use it for current context, ensuring sample bit is set
             AppOpticsAPM::XTrace.set_sampled(xtrace)
-
-            md = AppOpticsAPM::Metadata.fromString(xtrace)
+            md = AppOpticsAPM::Context.getMetadata(); #.makeRandom(true)
+            AppOpticsAPM::Context.setMetadata(md)
             # AppOpticsAPM::Context.fromString(xtrace)
-            log_event(layer, :entry, md.createEvent, opts)
+            log_event(layer, :entry, AppOpticsAPM::Context.createEvent, opts)
           else
             # discard invalid incoming xtrace
             # create a new context, ensuring sample bit set
