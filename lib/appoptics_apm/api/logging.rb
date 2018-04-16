@@ -137,16 +137,16 @@ module AppOpticsAPM
             # continue valid incoming xtrace
             # use it for current context, ensuring sample bit is set
             AppOpticsAPM::XTrace.set_sampled(xtrace)
-
-            md = AppOpticsAPM::Metadata.fromString(xtrace)
-            AppOpticsAPM::Context.fromString(xtrace)
-            log_event(layer, :entry, md.createEvent, opts)
+            md = AppOpticsAPM::Context.getMetadata(); #.makeRandom(true)
+            AppOpticsAPM::Context.setMetadata(md)
+            # AppOpticsAPM::Context.fromString(xtrace)
+            log_event(layer, :entry, AppOpticsAPM::Context.createEvent, opts)
           else
             # discard invalid incoming xtrace
             # create a new context, ensuring sample bit set
-            md = AppOpticsAPM::Metadata.makeRandom(true)
-            AppOpticsAPM::Context.set(md)
-            log_event(layer, :entry, AppOpticsAPM::Event.startTrace(md), opts)
+            md = AppOpticsAPM::Context.getMetadata(); #.makeRandom(true)
+            AppOpticsAPM::Context.setMetadata(md)
+            log_event(layer, :entry, AppOpticsAPM::Context.startTrace, opts)
           end
         else
           # No, we're not sampling this request
@@ -159,7 +159,7 @@ module AppOpticsAPM
           else
             # discard invalid incoming xtrace
             # create a new context, ensuring sample bit not set
-            md = AppOpticsAPM::Metadata.makeRandom(false)
+            md = AppOpticsAPM::Context
             AppOpticsAPM::Context.fromString(md.toString)
           end
         end
@@ -288,7 +288,7 @@ module AppOpticsAPM
       # * +layer+ - The layer the reported event belongs to
       # * +opts+ - A hash containing key/value pairs that will be reported along with this event
       def log_init(layer = :rack, opts = {})
-        context = AppOpticsAPM::Metadata.makeRandom
+        context = AppOpticsAPM::Context.getMetadata();
         return unless context.isValid
 
         event = context.createEvent
