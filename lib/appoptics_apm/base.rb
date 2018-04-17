@@ -165,7 +165,6 @@ module AppOpticsAPMBase
   # False otherwise
   #
   def tracing?
-    return true
     return false if !AppOpticsAPM.loaded || AppOpticsAPM.never?
     AppOpticsAPM::Context.getMetadata().isSampled
   end

@@ -4,7 +4,7 @@
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
   java_import 'com.tracelytics.joboe.LayerUtil'
-  #java_import 'com.tracelytics.joboe.SettingsReader'
+  # java_import 'com.tracelytics.joboe.SettingsReader'
   java_import 'com.tracelytics.joboe.Context'
   java_import 'com.tracelytics.joboe.Event'
   java_import 'com.tracelytics.agent.Agent'
@@ -71,12 +71,10 @@ module Oboe_metal
             AppOpticsAPM::Config.tracing_mode = :never
           end
 
-          AppOpticsAPM.sample_rate = 1 #cfg.getSampleRate
-          AppOpticsAPM::Config.sample_rate = 1 #cfg.sampleRate
+          AppOpticsAPM.sample_rate = cfg.getSampleRate
+          AppOpticsAPM::Config.sample_rate = cfg.sampleRate
           AppOpticsAPM::Config.sample_source = cfg.sampleRateSourceValue
         rescue => e
-          puts "================================ Reporter Rescue"
-          puts e.message
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] Couldn't retrieve/acces joboe sampleRateCfg"
           AppOpticsAPM.logger.debug "[appoptics_apm/debug] #{e.message}"
         end
@@ -145,7 +143,6 @@ module AppOpticsAPM
 
   class << self
     def sample?(opts = {})
-      return true
       begin
         # Return false if no-op mode
         return false unless AppOpticsAPM.loaded
@@ -160,12 +157,12 @@ module AppOpticsAPM
         opts[:layer]      ||= nil
         opts[:xtrace]     ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(opts[:layer], { 'X-Trace' => opts[:xtrace] })
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(opts[:layer].to_s, { 'X-Trace' => opts[:xtrace] })
 
         # Store the returned SampleRateConfig into AppOpticsAPM::Config
         if sr_cfg
           begin
-            AppOpticsAPM::Config.sample_rate = 1 #sr_cfg.sampleRate
+            AppOpticsAPM::Config.sample_rate = sr_cfg.sampleRate
             AppOpticsAPM::Config.sample_source = sr_cfg.sampleRateSourceValue
             # If we fail here, we do so quietly.  This was we don't spam logs
             # on every request
@@ -193,11 +190,8 @@ module AppOpticsAPM
 end
 
 # Assure that the Joboe Java Agent was loaded via premain
-puts "================================ Agent Status"
-puts Java::ComTracelyticsAgent::Agent.getStatus
 case Java::ComTracelyticsAgent::Agent.getStatus
   when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_SUCCESSFUL
-    puts "================== Agent Successful"
     AppOpticsAPM.loaded = true
 
   when Java::ComTracelyticsAgent::Agent::AgentStatus::INITIALIZED_FAILED
@@ -217,6 +211,5 @@ case Java::ComTracelyticsAgent::Agent.getStatus
     $stderr.puts '=============================================================='
 
   else
-    puts "======================================== Agent Failed"
     AppOpticsAPM.loaded = false
 end
