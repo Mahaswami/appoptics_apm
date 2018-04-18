@@ -58,7 +58,7 @@ module Oboe_metal
         else
           AppOpticsAPM.reporter = Java::ComTracelyticsJoboe::ReporterFactory.getInstance.buildUdpReporter
         end
-         puts "======================= Reporter Begin "
+
         begin
           # Import the tracing mode and sample rate settings
           # from the Java agent (user configured in
@@ -130,7 +130,6 @@ module Oboe_metal
       end
 
       def sendReport(evt)
-	# evt.report(AppOpticsAPM.reporter)
         evt.report()
       end
     end
