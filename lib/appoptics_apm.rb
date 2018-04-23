@@ -22,7 +22,7 @@ begin
 
     begin
       if RUBY_PLATFORM == 'java'
-        require '/usr/local/tracelytics/tracelyticsagent.jar'
+        require "#{ENV['APPOPTICS_PATH']}/appoptics-agent.jar"
         require 'joboe_metal'
       elsif RUBY_PLATFORM =~ /linux/
         require 'oboe_metal.so'

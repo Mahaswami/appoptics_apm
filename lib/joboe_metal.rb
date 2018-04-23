@@ -4,7 +4,7 @@
 module Oboe_metal
   include_package 'com.tracelytics.joboe'
   java_import 'com.tracelytics.joboe.LayerUtil'
-  java_import 'com.tracelytics.joboe.SettingsReader'
+  # java_import 'com.tracelytics.joboe.SettingsReader'
   java_import 'com.tracelytics.joboe.Context'
   java_import 'com.tracelytics.joboe.Event'
   java_import 'com.tracelytics.agent.Agent'
@@ -63,7 +63,7 @@ module Oboe_metal
           # Import the tracing mode and sample rate settings
           # from the Java agent (user configured in
           # /usr/local/tracelytics/javaagent.json when under JRuby)
-          cfg = LayerUtil.getLocalSampleRate(nil, nil)
+          cfg = LayerUtil.getLocalSampleRate(nil)
 
           if cfg.hasSampleStartFlag
             AppOpticsAPM::Config.tracing_mode = :always
@@ -130,7 +130,7 @@ module Oboe_metal
       end
 
       def sendReport(evt)
-        evt.report(AppOpticsAPM.reporter)
+        evt.report()
       end
     end
   end
@@ -156,7 +156,7 @@ module AppOpticsAPM
         opts[:layer]      ||= nil
         opts[:xtrace]     ||= nil
 
-        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(opts[:layer], { 'X-Trace' => opts[:xtrace] })
+        sr_cfg = Java::ComTracelyticsJoboe::LayerUtil.shouldTraceRequest(opts[:layer].to_s, { 'X-Trace' => opts[:xtrace] })
 
         # Store the returned SampleRateConfig into AppOpticsAPM::Config
         if sr_cfg

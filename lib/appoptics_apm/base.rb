@@ -166,7 +166,7 @@ module AppOpticsAPMBase
   #
   def tracing?
     return false if !AppOpticsAPM.loaded || AppOpticsAPM.never?
-    AppOpticsAPM::Context.isSampled
+    AppOpticsAPM::Context.getMetadata().isSampled
   end
 
   def heroku?
